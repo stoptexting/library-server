@@ -105,6 +105,8 @@ public class ServiceReservation extends Service {
 	        			socketOut.println("Echec lors de la réservation : Vous avez déjà reservé le document !");
 	        		} else if (doc.reserveur() != null || doc.emprunteur() != null) {
 	        			socketOut.println("Echec lors de la réservation : Le document est déjà réservé par un autre abonné jusqu'à " + getLimitReservation(doc)); // timertask
+	        		} else if (abo.estBanni()) {
+	        			socketOut.println("Echec lors de la réservation : Vous êtes banni de la tribu jusqu'au " + abo.getDateFinBannissement());
 	        		} else {
 	        			doc.reservationPour(abo);
 	        			

@@ -1,6 +1,7 @@
 package library.documents;
 
 import library.data.Abonne;
+import util.GestionnaireBannissement;
 
 public class DVD extends ADocument {
 	private boolean adulte;

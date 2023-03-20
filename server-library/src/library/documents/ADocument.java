@@ -63,7 +63,7 @@ public abstract class ADocument implements Document {
 
 	@Override
 	public void reservationPour(Abonne ab) {
-		assert ab != null && this.reserveur == null && this.emprunteur == null;
+		assert ab != null && this.reserveur == null && this.emprunteur == null && !ab.estBanni();
 		synchronized(this) {
 			this.taskLiberer = new LibererTimer(this, new Date(System.currentTimeMillis() + 60*60*1000*2));
 			timer.schedule(taskLiberer, 60 * 60 * 1000 * 2);
@@ -73,7 +73,7 @@ public abstract class ADocument implements Document {
 
 	@Override
 	public void empruntPar(Abonne ab) {
-		assert ab != null && this.reserveur == ab && this.emprunteur == null;
+		assert ab != null && this.reserveur == ab && this.emprunteur == null && !ab.estBanni();
 		synchronized(this) {
 			this.emprunteur = ab;
 			this.reserveur = null;

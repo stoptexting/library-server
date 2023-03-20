@@ -5,6 +5,8 @@ import java.net.Socket;
 import library.data.Abonne;
 import library.data.Data;
 import library.documents.Document;
+import util.GestionnaireBannissement;
+import util.GestionnaireRetard;
 import util.ResponseWithTimeOut;
 
 public class ServiceRetour extends Service {
@@ -72,13 +74,21 @@ public class ServiceRetour extends Service {
 			String[] parts = line.split(":");
 	        String command = parts[0];
 	        int docIDConfirm = Integer.parseInt(parts[1]);
+	        String etat = parts[2];
 	        
 	        if (command.equals("retourner")) {
 	        	if (docIDConfirm == docID) {
 	        		
 	        		if (doc.emprunteur() != null && doc.reserveur() == null) {
-	        			doc.retour();
-	        			socketOut.println("Le document " + doc + " a été retourné avec succès");
+	        			if (etat.equals("dégradé")) {
+	        				GestionnaireBannissement.bannir(doc.emprunteur());
+	        				socketOut.println("Le document a été dégradé : l'emprunteur a été banni de la tribu jusqu'au : " + (doc.emprunteur().getDateFinBannissement() != null ? doc.emprunteur().getDateFinBannissement() : "{non banni}"));
+	        				GestionnaireRetard.retour(doc);
+	        			} else {
+	        				doc.retour();
+	        				socketOut.println("Le document " + doc + " a été retourné avec succès!");
+	        			}
+	        			
 	        		} else if (doc.emprunteur() == null && doc.reserveur() != null) {
 	        			socketOut.println("Impossible de retourner le document, il n'est pas encore emprunté l'abonné qui l'a réservé!");
 	        		} else {

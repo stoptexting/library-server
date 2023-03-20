@@ -1,6 +1,7 @@
 package library.data;
 
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
 
@@ -8,18 +9,18 @@ public class Abonne {
 	private int id;
 	private String nom;
 	private Date dateNaissance;
-	private Date dateBannissement;
+	private Date dateFinBannissement;
 	
-	public Abonne(int id, String nom, Date dateNaissance, Date dateBannissement) {
+	public Abonne(int id, String nom, Date dateNaissance, Date dateFinBannissement) {
 		this.id = id;
 		this.nom = nom;
 		this.dateNaissance = dateNaissance;
-		this.dateBannissement = dateBannissement;
+		this.dateFinBannissement = dateFinBannissement;
 	}
 	
 	
 	public boolean estBanni() {
-		return (dateBannissement != null);
+		return (dateFinBannissement != null);
 	}
 	
 	public boolean estAdulte() {
@@ -40,5 +41,16 @@ public class Abonne {
 	
 	public String toString() {
 		return this.nom + "(id=" + this.id + ")";
+	}
+
+	public void setDateFinBannissement(Date date) {
+		this.dateFinBannissement = date;
+	}
+	
+	public String getDateFinBannissement() {
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy 'à' HH:mm:ss");
+        String formattedDate = formatter.format(this.dateFinBannissement);
+        System.err.println(this.dateFinBannissement);
+		return formattedDate;
 	}
 }

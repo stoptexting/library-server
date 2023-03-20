@@ -6,6 +6,7 @@ import library.data.Abonne;
 import library.data.Data;
 import library.documents.ADocument;
 import library.documents.Document;
+import util.GestionnaireRetard;
 import util.ResponseWithTimeOut;
 
 public class ServiceEmprunt extends Service {
@@ -26,7 +27,7 @@ public class ServiceEmprunt extends Service {
 		}
 		
 		catch (Exception e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 			System.out.println("["+ this + "] Fin de connexion avec le client " + + this.socket.getPort() + "... (timeout)");
 		}
 		
@@ -100,9 +101,11 @@ public class ServiceEmprunt extends Service {
 	        
 	        if (command.equals("emprunter")) {
 	        	if (aboIDConfirm == aboID && docIDConfirm == docID) {
-	        		if (doc.reserveur() == abo || (doc.reserveur() == null && doc.emprunteur() == null)) {
-	        			doc.empruntPar(abo);
-	        			socketOut.println("Le document " + doc + " a bien été emprunté avec succès pour l'abonné " + abo);
+	        		if (doc.reserveur() == abo || (doc.reserveur() == null && doc.emprunteur() == null) && !abo.estBanni()) {
+	        			GestionnaireRetard.emprunterAvecRetard(doc, abo);
+	        			socketOut.println("Le document " + doc + " a bien été emprunté avec succès pour l'abonné " + abo + " jusqu'au " + GestionnaireRetard.getDateLimiteRetour(doc));
+	        		} else if (abo.estBanni()) {
+	        			socketOut.println("Echec lors de l'emprunt : Vous êtes banni de la tribu jusqu'au " + abo.getDateFinBannissement());
 	        		} else {
 	        			socketOut.println("Echec lors de l'emprunt : le document demandé est déjà " + (doc.emprunteur() != null ? "emprunté" : (doc.reserveur() != null ? "réservé jusqu'au " + ((ADocument) doc).getLimit() : "lebron james") + " par un autre abonné.")); // timertask
 	        		}

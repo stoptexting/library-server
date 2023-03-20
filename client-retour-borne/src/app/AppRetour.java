@@ -61,7 +61,7 @@ private static final Scanner sc = new Scanner(System.in);
 				// initial handshake avec le serveur pour le catalogue
 				String response, line;
 		        
-		        boolean documentConfirme = false;
+		        boolean documentConfirme = false; boolean etatConfirme = false;
 		        
 		        // Afficher Ascii
 		        response = socketIn.readLine();
@@ -72,6 +72,7 @@ private static final Scanner sc = new Scanner(System.in);
 		    	//System.out.println(decoded(response));
 		    	
 		    	int docID = 999;
+		    	String etat = "";
 		    	
 		    	while (!documentConfirme) {
 		    		System.out.print("Entrez le n° du document à retourner : ");
@@ -98,10 +99,21 @@ private static final Scanner sc = new Scanner(System.in);
 		    		}
 		    	}
 		    	
+		    	while (!etatConfirme) {
+		    		System.out.print("Dans quel état le document à rendre (normal/dégradé) : ");
+		        	etat = sc.nextLine();
+		        	
+		    		if (etat.equals("normal") || etat.equals("dégradé")) {
+		    			etatConfirme = true;
+		    		} else {
+		    			etatConfirme = false;
+		    		}
+		    	}
+		    	
 		    	// debut retour
-		    	if ((documentConfirme) && (docID != 999)) {
+		    	if ((documentConfirme) && (docID != 999) && (etat.equals("normal") || etat.equals("dégradé"))) {
 		    		// on effectue le retour
-					socketOut.println("retourner:" + docID);
+					socketOut.println("retourner:" + docID + ":" + etat);
 		        	response = socketIn.readLine();
 		        	System.out.println("[client] " + response);
 		    	}
