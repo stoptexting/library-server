@@ -7,6 +7,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Base64;
 import java.util.Scanner;
 
 public class AppClient {
@@ -65,7 +66,7 @@ public class AppClient {
         
         // Afficher le catalogue et le récupérer, initial handshake
         response = socketIn.readLine();
-    	System.out.println(response);
+    	System.out.println(decoded(response));
     	
     	int abonneID = 999; int docID = 999;
     	
@@ -142,4 +143,9 @@ public class AppClient {
         	return false;
     	}
 	}
+	
+	private static String decoded(String fromServer) {
+	      byte[] decodedBytes = Base64.getDecoder().decode(fromServer);
+	      return new String(decodedBytes);
+	  }
 }

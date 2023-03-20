@@ -30,7 +30,7 @@ public class DVD extends ADocument {
 	
 	@Override
 	public String toString() {
-		return this.getNom() + " (format DVD)" + (adulte ? "[ADULTE -16]" : "");
+		return this.getNom() + " (DVD)" + (adulte ? "(+16)" : "");
 	}
 
 }

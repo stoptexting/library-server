@@ -39,7 +39,7 @@ public class ServiceReservation extends Service {
 		
 		// handshake initial
 		System.out.println("["+ this + "] Envoi du catalogue au client " + this.socket.getPort());
-		this.socketOut.println("Catalogue (envoyé par le serveur)");
+		this.socketOut.println(Data.getCatalogueEncoded()); // catalogue formaté + encoded en base 64
 				
 		String line;
 		

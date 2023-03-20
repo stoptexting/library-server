@@ -1,6 +1,8 @@
 package library.data;
 
 import java.sql.Date;
+import java.util.Base64;
+import java.util.Formatter;
 import java.util.HashMap;
 
 import library.documents.DVD;
@@ -38,4 +40,21 @@ public class Data {
 	public HashMap<Integer, Document> getDocuments() {
 		return documents;
 	}
+	
+	public static String getCatalogueEncoded() {
+        Formatter formatter = new Formatter();
+
+        // Define column headers
+        formatter.format("%-6s %-30s %-10s%n", "Numéro", "Titre", "Reservable");
+        
+        for (Document doc: documents.values()) {
+            formatter.format("%-6d %-30s %-10s%n", doc.numero(), doc, (doc.reserveur() == null && doc.emprunteur() == null ? "Oui":"Non"));
+        }
+        
+        
+        String docs = formatter.toString();
+        formatter.close();
+        
+        return Base64.getEncoder().encodeToString(docs.getBytes());
+    }
 }
