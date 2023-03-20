@@ -27,7 +27,7 @@ public class ServiceReservation extends Service {
 		}
 		
 		catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			System.out.println("["+ this + "] Fin de connexion avec le client " + + this.socket.getPort() + "...");
 		}
 		
@@ -39,6 +39,7 @@ public class ServiceReservation extends Service {
 		
 		// handshake initial
 		System.out.println("["+ this + "] Envoi du catalogue au client " + this.socket.getPort());
+		this.socketOut.println(borneEmpruntAscii()); // Borne Reservation
 		this.socketOut.println(Data.getCatalogueEncoded()); // catalogue formaté + encoded en base 64
 				
 		String line;
@@ -103,7 +104,7 @@ public class ServiceReservation extends Service {
 	        	if (aboIDConfirm == aboID && docIDConfirm == docID) {
 	        		if (doc.reserveur() == abo) {
 	        			socketOut.println("Echec lors de la réservation : Vous avez déjà reservé le document !");
-	        		} else if (doc.reserveur() != null) {
+	        		} else if (doc.reserveur() != null || doc.emprunteur() != null) {
 	        			socketOut.println("Echec lors de la réservation : Le document est déjà réservé par un autre abonné jusqu'à " + getLimitReservation(doc)); // timertask
 	        		} else {
 	        			doc.reservationPour(abo);
@@ -150,9 +151,9 @@ public class ServiceReservation extends Service {
 		return doc.reserveur() == null && doc.emprunteur() == abo;
 	}
 	
-	public static String getLimitReservation(Document doc) {
-		ADocument Adoc = (ADocument) doc; // 99.999% castable parce que chaque doc hérite de ADocument hors erreur
-		return Adoc.getLimit();
+	public static String borneEmpruntAscii() {
+		String ascii = "ICBfX19fICAgICAgICAgICAgICAgICAgICAgICAgICBfX19fICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBfICAgXyAgICAgICAgICAgICAKIHwgX18gKSAgX19fICBfIF9fIF8gX18gICBfX18gIHwgIF8gXCBfX18gIF9fXyAgX19fIF8gX19fXyAgIF9fX18gX3wgfF8oXykgX19fICBfIF9fICAKIHwgIF8gXCAvIF8gXHwgJ19ffCAnXyBcIC8gXyBcIHwgfF8pIC8gXyBcLyBfX3wvIF8gXCAnX19cIFwgLyAvIF9gIHwgX198IHwvIF8gXHwgJ18gXCAKIHwgfF8pIHwgKF8pIHwgfCAgfCB8IHwgfCAgX18vIHwgIF8gPCAgX18vXF9fIFwgIF9fLyB8ICAgXCBWIC8gKF98IHwgfF98IHwgKF8pIHwgfCB8IHwKIHxfX19fLyBcX19fL3xffCAgfF98IHxffFxfX198IHxffCBcX1xfX198fF9fXy9cX19ffF98ICAgIFxfLyBcX18sX3xcX198X3xcX19fL3xffCB8X3wK";
+		return ascii;
 	}
-
+	
 }

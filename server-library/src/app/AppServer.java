@@ -26,6 +26,7 @@ public class AppServer {
 	public static void main(String[] args) {
 		getPorts(args);
         new Thread(new Serveur(port("Reservation"), AppServer.reservation)).start();
+        new Thread(new Serveur(port("Emprunt"), AppServer.emprunt)).start();
 	}
 	
 	

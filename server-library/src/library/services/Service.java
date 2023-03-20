@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import library.documents.ADocument;
+import library.documents.Document;
+
 public class Service implements Runnable {
 	protected final Socket socket;
 	protected BufferedReader socketIn;
@@ -32,6 +35,11 @@ public class Service implements Runnable {
 	@Override
 	public String toString() {
 		return "service";
+	}
+	
+	public static String getLimitReservation(Document doc) {
+		ADocument Adoc = (ADocument) doc; // 99.999% castable parce que chaque doc hérite de ADocument hors erreur
+		return Adoc.getLimit();
 	}
 
 }

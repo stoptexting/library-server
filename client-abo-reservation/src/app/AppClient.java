@@ -64,6 +64,10 @@ public class AppClient {
         
         boolean abonneConfirme = false; boolean documentConfirme = false;
         
+        // Afficher Ascii
+        response = socketIn.readLine();
+    	System.out.println(decoded(response));
+    	
         // Afficher le catalogue et le récupérer, initial handshake
         response = socketIn.readLine();
     	System.out.println(decoded(response));
@@ -74,7 +78,6 @@ public class AppClient {
     	while (!abonneConfirme) {
     		System.out.print("Entrez votre n° abonné : ");
         	abonneID = Integer.parseInt(sc.nextLine()); // bug si on met des lettres
-        	//sc.nextLine();
         	
         	// on demande de récup le nom de l'abo avec l'id abonneID
         	socketOut.println("abo:" + abonneID);
@@ -147,5 +150,5 @@ public class AppClient {
 	private static String decoded(String fromServer) {
 	      byte[] decodedBytes = Base64.getDecoder().decode(fromServer);
 	      return new String(decodedBytes);
-	  }
+	}
 }

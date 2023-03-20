@@ -1,5 +1,6 @@
 package library.documents;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -8,7 +9,7 @@ import library.data.Abonne;
 
 class LibererTimer extends TimerTask {
 	private Document doc;
-	private Date limit;
+	protected Date limit;
 	
 	public LibererTimer(Document doc, Date limit) {
 		this.doc = doc;
@@ -34,7 +35,7 @@ public abstract class ADocument implements Document {
 	private Abonne reserveur;
 	
 	private static Timer timer;
-	private TimerTask taskLiberer;
+	private LibererTimer taskLiberer;
 	
 	static {
 		timer = new Timer();
@@ -74,7 +75,9 @@ public abstract class ADocument implements Document {
 		assert ab != null && this.reserveur == ab && this.emprunteur == null;
 		this.emprunteur = ab;
 		this.reserveur = null;
-		taskLiberer.cancel(); // stop task 2h car emprunté
+		
+		if (taskLiberer != null)
+			taskLiberer.cancel(); // stop task 2h car emprunté
 	}
 
 	@Override
@@ -88,7 +91,9 @@ public abstract class ADocument implements Document {
 	}
 	
 	public String getLimit() {
-		return this.taskLiberer.toString();
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy 'à' HH:mm:ss");
+        String formattedDate = formatter.format(this.taskLiberer.limit);
+		return formattedDate;
 	}
 
 }
