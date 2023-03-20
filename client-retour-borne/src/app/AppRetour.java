@@ -9,8 +9,8 @@ import java.net.Socket;
 import java.util.Base64;
 import java.util.Scanner;
 
-public class AppEmprunt {
-	private static final Scanner sc = new Scanner(System.in);
+public class AppRetour {
+private static final Scanner sc = new Scanner(System.in);
 	
 	public static void main(String[] args) throws InterruptedException {
         int port = 0;
@@ -44,7 +44,7 @@ public class AppEmprunt {
 			
             boolean continuer = true;
             do {
-            	continuer = empruntPrompt(socketIn, socketOut); 	
+            	continuer = retourPrompt(socketIn, socketOut); 	
             } while (continuer);
             
             System.out.println("Fermeture de la connexion avec le serveur d'Emprunt...");
@@ -53,15 +53,15 @@ public class AppEmprunt {
             
             
         } catch (IOException e) {
-        	System.err.println("La combinaison " + host + ":" + port + " est fermée ou non atteignable...");
+            System.err.println("La combinaison " + host + ":" + port + " est fermée ou non atteignable...");
         }
     }
 	
-	public static boolean empruntPrompt(BufferedReader socketIn, PrintWriter socketOut) throws IOException {
+	public static boolean retourPrompt(BufferedReader socketIn, PrintWriter socketOut) throws IOException {
 				// initial handshake avec le serveur pour le catalogue
 				String response, line;
 		        
-		        boolean abonneConfirme = false; boolean documentConfirme = false;
+		        boolean documentConfirme = false;
 		        
 		        // Afficher Ascii
 		        response = socketIn.readLine();
@@ -71,41 +71,13 @@ public class AppEmprunt {
 		        //response = socketIn.readLine();
 		    	//System.out.println(decoded(response));
 		    	
-		    	int abonneID = 999; int docID = 999;
-		    	
-		    	
-		    	while (!abonneConfirme) {
-		    		System.out.print("Entrez votre n° abonné : ");
-		        	abonneID = Integer.parseInt(sc.nextLine()); // bug si on met des lettres
-		        	//sc.nextLine();
-		        	
-		        	// on demande de récup le nom de l'abo avec l'id abonneID
-		        	socketOut.println("abo:" + abonneID);
-		        	// on récupère la réponse du serveur
-		        	String abonne = socketIn.readLine();
-
-		        	if (abonne.equals("not found")) {
-		        		System.out.println("Il n'existe aucun abonné à ce numéro! Réessayez...");
-		        		continue;
-		        	}
-		        	
-		    		System.out.print("Etes-vous bien (oui/non) " + abonne + "? : ");
-		    		String aboOK = sc.nextLine().toLowerCase();
-		    		if (aboOK.equals("oui")) {
-		    			abonneConfirme = true;
-		    			socketOut.println("OK");
-		    		} else {
-		    			abonneConfirme = false;
-		    			socketOut.println("KO");
-		    		}
-		    	}
+		    	int docID = 999;
 		    	
 		    	while (!documentConfirme) {
-		    		System.out.print("Entrez le n° du document : ");
+		    		System.out.print("Entrez le n° du document à retourner : ");
 		        	docID = Integer.parseInt(sc.nextLine());
-		        	//sc.nextLine();
 		        	
-		        	// on demande de récup le nom de l'abo avec l'id abonneID
+		        	// on demande de récup l'id du document avec docID
 		        	socketOut.println("doc:" + docID);
 		        	// on récupère la réponse du serveur
 		        	String document = socketIn.readLine();
@@ -115,7 +87,7 @@ public class AppEmprunt {
 		        		continue;
 		        	}
 		        	
-		    		System.out.print("Voulez-vous bien emprunter le document nommé (oui/non) : " + document + "? : ");
+		    		System.out.print("Voulez-vous bien retourner le document nommé (oui/non) : " + document + "? : ");
 		    		String docOK = sc.nextLine().toLowerCase();
 		    		if (docOK.equals("oui")) {
 		    			documentConfirme = true;
@@ -126,16 +98,16 @@ public class AppEmprunt {
 		    		}
 		    	}
 		    	
-		    	// debut emprunt
-		    	if ((documentConfirme && abonneConfirme) && (abonneID != 999 && docID != 999)) {
-		    		// on effectue l'emprunt
-					socketOut.println("emprunter:" + abonneID + ":" + docID);
+		    	// debut retour
+		    	if ((documentConfirme) && (docID != 999)) {
+		    		// on effectue le retour
+					socketOut.println("retourner:" + docID);
 		        	response = socketIn.readLine();
 		        	System.out.println("[client] " + response);
 		    	}
-		    	// fin emprunt
+		    	// fin retour
 		    	
-		    	System.out.print("Faire un nouvel emprunt ? (oui/non) : ");
+		    	System.out.print("Faire un nouveau retour ? (oui/non) : ");
 				line = sc.nextLine().toLowerCase();
 
 		    	if (line.equals("oui")) {

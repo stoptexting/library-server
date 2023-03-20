@@ -3,7 +3,6 @@ package app;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -54,7 +53,7 @@ public class AppClient {
             
             
         } catch (IOException e) {
-            System.err.println("Le port " + port + " avec le host " + host + " sont fermés ou non atteignables...");
+        	System.err.println("La combinaison " + host + ":" + port+ " est fermée ou non atteignable...");
         }
     }
 	

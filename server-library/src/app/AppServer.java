@@ -16,7 +16,7 @@ public class AppServer {
 		try {
 			AppServer.reservation = (Class<? extends Service>) Class.forName("library.services.ServiceReservation");
 			AppServer.emprunt = (Class<? extends Service>) Class.forName("library.services.ServiceEmprunt");
-			//AppServer.retour = (Class<? extends Service>) Class.forName("library.services.ServiceRetour");
+			AppServer.retour = (Class<? extends Service>) Class.forName("library.services.ServiceRetour");
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -27,6 +27,7 @@ public class AppServer {
 		getPorts(args);
         new Thread(new Serveur(port("Reservation"), AppServer.reservation)).start();
         new Thread(new Serveur(port("Emprunt"), AppServer.emprunt)).start();
+        new Thread(new Serveur(port("Retour"), AppServer.retour)).start();
 	}
 	
 	

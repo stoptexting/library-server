@@ -37,7 +37,7 @@ public class ServiceEmprunt extends Service {
 		boolean abonneConfirme = false; boolean documentConfirme = false;
 		
 		// handshake initial
-		System.out.println("["+ this + "] Envoi du catalogue au client " + this.socket.getPort());
+		System.out.println("["+ this + "] Initialisation d'une borne d'emprunt avec le client " + this.socket.getPort());
 		this.socketOut.println(borneEmpruntAscii());
 		//this.socketOut.println(Data.getCatalogueEncoded()); // catalogue formaté + encoded en base 64
 				
