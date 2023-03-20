@@ -19,13 +19,15 @@ public class DVD extends ADocument {
 	@Override
 	public void reservationPour(Abonne abo) {
 		assert abo != null;
-		if (adulte) {
-			if (aboEstAdulte(abo))
-				super.reservationPour(abo);
+		synchronized(this) {
+			if (adulte) {
+				if (aboEstAdulte(abo))
+					super.reservationPour(abo);
+				return;
+			}
+			super.reservationPour(abo);
 			return;
 		}
-		super.reservationPour(abo);
-		return;
 	}
 	
 	@Override

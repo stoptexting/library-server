@@ -64,20 +64,24 @@ public abstract class ADocument implements Document {
 	@Override
 	public void reservationPour(Abonne ab) {
 		assert ab != null && this.reserveur == null && this.emprunteur == null;
-		
-		this.taskLiberer = new LibererTimer(this, new Date(System.currentTimeMillis() + 60*60*1000*2));
-		timer.schedule(taskLiberer, 60 * 60 * 1000 * 2);
-		this.reserveur = ab;
+		synchronized(this) {
+			this.taskLiberer = new LibererTimer(this, new Date(System.currentTimeMillis() + 60*60*1000*2));
+			timer.schedule(taskLiberer, 60 * 60 * 1000 * 2);
+			this.reserveur = ab;
+		}
 	}
 
 	@Override
 	public void empruntPar(Abonne ab) {
 		assert ab != null && this.reserveur == ab && this.emprunteur == null;
-		this.emprunteur = ab;
-		this.reserveur = null;
+		synchronized(this) {
+			this.emprunteur = ab;
+			this.reserveur = null;
+			
+			if (taskLiberer != null)
+				taskLiberer.cancel(); // stop task 2h car emprunté
+		}
 		
-		if (taskLiberer != null)
-			taskLiberer.cancel(); // stop task 2h car emprunté
 	}
 
 	@Override
