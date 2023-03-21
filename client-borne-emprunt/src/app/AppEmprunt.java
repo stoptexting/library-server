@@ -8,6 +8,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Base64;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AppEmprunt {
 	private static final Scanner sc = new Scanner(System.in);
@@ -55,6 +57,17 @@ public class AppEmprunt {
         } catch (IOException e) {
         	System.err.println("La combinaison " + host + ":" + port + " est fermée ou non atteignable...");
         }
+    }
+	
+	private static final String EMAIL_PATTERN =
+            "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+            + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+
+    private static final Pattern pattern = Pattern.compile(EMAIL_PATTERN);
+
+    public static boolean isValidEmail(String email) {
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
     }
 	
 	public static boolean empruntPrompt(BufferedReader socketIn, PrintWriter socketOut) throws IOException {
@@ -126,14 +139,39 @@ public class AppEmprunt {
 		    		}
 		    	}
 		    	
-		    	// debut emprunt
-		    	if ((documentConfirme && abonneConfirme) && (abonneID != 999 && docID != 999)) {
-		    		// on effectue l'emprunt
+		    	while (true) {
 					socketOut.println("emprunter:" + abonneID + ":" + docID);
-		        	response = socketIn.readLine();
-		        	System.out.println("[client] " + response);
-		    	}
-		    	// fin emprunt
+					response = socketIn.readLine();
+					if (response.equals("OK") || response.equals("KO_BANNI")) {
+						response = socketIn.readLine();
+						System.out.println("[client] " + response);
+						break;
+					} else if (response.equals("KO_NOTIFICATION")) {
+						response = socketIn.readLine();
+						System.out.println("[client] " + response);
+						System.out.print("Souhaitez-vous recevoir une notification par mail lors de son retour ? (oui/non) : ");
+						
+						String choix = "";
+						while (!choix.equals("oui") && !choix.equals("non")) {
+							choix = sc.nextLine().toLowerCase();
+						}
+						
+						String email = "";
+						if (choix.equals("oui")) {
+							socketOut.println("notifier");
+							
+							while (!AppEmprunt.isValidEmail(email)) {
+								System.out.print("Sur quel email voulez-vous recevoir la notification ? (ex:bernard@site.com) :");
+								email = sc.nextLine();
+							}
+							socketOut.println(email);
+						} else {
+							socketOut.println("ne_pas_notifier");
+						}
+						
+						break;
+					}
+				}
 		    	
 		    	System.out.print("Faire un nouvel emprunt ? (oui/non) : ");
 				line = sc.nextLine().toLowerCase();

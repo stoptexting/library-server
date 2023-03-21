@@ -3,8 +3,10 @@ package app;
 import java.util.HashMap;
 import java.util.Map;
 
+import library.data.Data;
 import library.servers.Serveur;
 import library.services.Service;
+import util.GestionnaireSignauxFumee;
 
 @SuppressWarnings("unchecked")
 public class AppServer {
@@ -23,7 +25,8 @@ public class AppServer {
 		}
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ClassNotFoundException {
+		Data.init();
 		getPorts(args);
         new Thread(new Serveur(port("Reservation"), AppServer.reservation)).start();
         new Thread(new Serveur(port("Emprunt"), AppServer.emprunt)).start();

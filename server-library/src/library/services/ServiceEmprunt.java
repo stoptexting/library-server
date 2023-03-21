@@ -7,6 +7,7 @@ import library.data.Data;
 import library.documents.ADocument;
 import library.documents.Document;
 import util.GestionnaireRetard;
+import util.GestionnaireSignauxFumee;
 import util.ResponseWithTimeOut;
 
 public class ServiceEmprunt extends Service {
@@ -103,11 +104,22 @@ public class ServiceEmprunt extends Service {
 	        	if (aboIDConfirm == aboID && docIDConfirm == docID) {
 	        		if (doc.reserveur() == abo || (doc.reserveur() == null && doc.emprunteur() == null) && !abo.estBanni()) {
 	        			GestionnaireRetard.emprunterAvecRetard(doc, abo);
+	        			socketOut.println("OK");
 	        			socketOut.println("Le document " + doc + " a bien été emprunté avec succès pour l'abonné " + abo + " jusqu'au " + GestionnaireRetard.getDateLimiteRetour(doc));
 	        		} else if (abo.estBanni()) {
+	        			socketOut.println("KO_BANNI");
 	        			socketOut.println("Echec lors de l'emprunt : Vous êtes banni de la tribu jusqu'au " + abo.getDateFinBannissement());
 	        		} else {
+	        			socketOut.println("KO_NOTIFICATION");
 	        			socketOut.println("Echec lors de l'emprunt : le document demandé est déjà " + (doc.emprunteur() != null ? "emprunté" : (doc.reserveur() != null ? "réservé jusqu'au " + ((ADocument) doc).getLimit() : "lebron james") + " par un autre abonné.")); // timertask
+	        			
+	        			line = ResponseWithTimeOut.response(socketIn, socket);
+	        			if(line.toLowerCase().equals("notifier")) {
+	        				line = ResponseWithTimeOut.response(socketIn, socket);
+	        				
+	        				System.out.println("Création d'une task notification pour le document " + doc + " à envoyer par mail à " + line + ".");
+	        				GestionnaireSignauxFumee.notifierRetour(line, doc);
+	        			}
 	        		}
 	        	}
 	        }

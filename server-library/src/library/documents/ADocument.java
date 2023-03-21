@@ -71,8 +71,8 @@ public abstract class ADocument implements Document {
 		assert ab != null && this.reserveur == null && this.emprunteur == null && !ab.estBanni();
 		synchronized(this) {
 			Calendar cal = Calendar.getInstance();
-			//cal.add(Calendar.HOUR_OF_DAY, 2);
-			cal.add(Calendar.SECOND, 20);
+			cal.add(Calendar.HOUR_OF_DAY, 2);
+			//cal.add(Calendar.SECOND, 20);
 			Date dateLimite = new Date(cal.getTimeInMillis());;
 			
 			this.taskLiberer = new LibererTimer(this, dateLimite);
@@ -96,8 +96,11 @@ public abstract class ADocument implements Document {
 
 	@Override
 	public void retour() {
-		this.emprunteur = null;
-		this.reserveur = null;
+		synchronized(this) {
+			this.emprunteur = null;
+			this.reserveur = null;
+			this.notifyAll();
+		}
 	}
 
 	public String getNom() {
