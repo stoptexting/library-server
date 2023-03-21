@@ -20,7 +20,6 @@ class DebanissementTask extends TimerTask {
 	
 }
 
-
 public class GestionnaireBannissement {
 	private static Timer timer;
 	
@@ -39,7 +38,6 @@ public class GestionnaireBannissement {
 		
 		timer.schedule(unban, dateUnban); // 1 mois
 		abo.setDateFinBannissement(dateUnban);
-		System.err.println(abo.getDateFinBannissement() + " BRUHBRUHBRUHBRUHBRUHBRUHBRUHBRUHBRUHBRUHBRUHBRUHBRUHBRUHBRUH");
 	}
 	
 	public static void debannir(Abonne abo) {

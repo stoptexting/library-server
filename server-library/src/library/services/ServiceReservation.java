@@ -4,6 +4,7 @@ import java.net.Socket;
 
 import library.data.Abonne;
 import library.data.Data;
+import library.documents.ADocument;
 import library.documents.Document;
 import util.ResponseWithTimeOut;
 
@@ -26,7 +27,7 @@ public class ServiceReservation extends Service {
 		}
 		
 		catch (Exception e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 			System.out.println("["+ this + "] Fin de connexion avec le client " + + this.socket.getPort() + "...");
 		}
 		
@@ -91,40 +92,70 @@ public class ServiceReservation extends Service {
 	        }
 		}
 		
+		boolean reservation = false;
+		while(!reservation) {
+			if ((documentConfirme && abonneConfirme) && (aboID != 999 && docID != 999)) {
+				line = ResponseWithTimeOut.response(socketIn, socket);
+				String[] parts = line.split(":");
+		        String command = parts[0];
+		        int aboIDConfirm = Integer.parseInt(parts[1]);
+		        int docIDConfirm = Integer.parseInt(parts[2]);
+		        
+		        if (command.equals("reserver")) {
+		        	if (aboIDConfirm == aboID && docIDConfirm == docID) {
+		        		if (doc.reserveur() == abo) {
+		        			socketOut.println("KO");
+		        			socketOut.println("Echec lors de la réservation : Vous avez déjà reservé le document, allez vite l'emprunter ou il sera libéré ! Vous avez jusqu'au " + ((ADocument) doc).getLimit());
+		        			reservation = true;
+		        			continue;
+		        		} else if (((ADocument) doc).limitBientotAtteinte())  {
+		        			socketOut.println("patientez");
+		        			socketOut.println("Merci de patienter 30 secondes environ, le temps que la réservation expire. Bonne écoute de la musique céleste.");
+		        			System.out.println("bientot fini patientez");
+	        				synchronized (doc) {
+	        					doc.wait();
+	        				}
+	        				continue;
+		        		} else if (doc.reserveur() != null || doc.emprunteur() != null) {
+		        			socketOut.println("KO");
+		        			socketOut.println("Echec lors de la réservation : Le document est déjà réservé ou emprunté par un autre abonné jusqu'à " + getLimitReservation(doc)); // timertask
+		        			reservation = true;
+		        			continue;
+		        		} else if (abo.estBanni()) {
+		        			socketOut.println("KO");
+		        			socketOut.println("Echec lors de la réservation : Vous êtes banni de la tribu jusqu'au " + abo.getDateFinBannissement());
+		        			reservation = true;
+		        			continue;
+		        		} else {
+		        			doc.reservationPour(abo);
+		        		
+		        			if (doc.reserveur() == abo) {
+		        				socketOut.println("OK");
+		        	        	socketOut.println("Réservation effectuée avec succès : " + doc + " réservé pour l'abonné " + abo);
+		        	        	System.out.println("Réservation effectuée avec succès");
+		        	        	reservation = true;
+		        	        	break;
+		        			} else {
+		        	        	if (doc.getClass().getSimpleName().equals("DVD") && !abo.estAdulte()) {
+		        	        		socketOut.println("KO");
+		        	        		socketOut.println("Vous n'avez pas l'âge necessaire pour réserver ce type de document réservé aux adultes (-16)! ");
+		        	        		System.err.println("[AGE NON REQUIS] Echec lors de la réservation du document : " + doc + " pour " + abo);
+		        	        		reservation = true;
+			        	        	continue;
+		        	        	} else {
+		        	        		socketOut.println("KO");
+		        	        		socketOut.println("Echec lors de la réservation effectuée: " + doc + " non réservé pour l'abonné " + abo);
+		        	        		System.err.println("[RAISON INCONNUE] Echec lors de la réservation du document : " + doc + " pour " + abo);
+		        	        		reservation = true;
+			        	        	continue;
+		        	        	}
+		        	        }
+		        		}
+		        	}
+		        }
+		}
 		
-		if ((documentConfirme && abonneConfirme) && (aboID != 999 && docID != 999)) {
-			line = ResponseWithTimeOut.response(socketIn, socket);
-			String[] parts = line.split(":");
-	        String command = parts[0];
-	        int aboIDConfirm = Integer.parseInt(parts[1]);
-	        int docIDConfirm = Integer.parseInt(parts[2]);
-	        
-	        if (command.equals("reserver")) {
-	        	if (aboIDConfirm == aboID && docIDConfirm == docID) {
-	        		if (doc.reserveur() == abo) {
-	        			socketOut.println("Echec lors de la réservation : Vous avez déjà reservé le document !");
-	        		} else if (doc.reserveur() != null || doc.emprunteur() != null) {
-	        			socketOut.println("Echec lors de la réservation : Le document est déjà réservé par un autre abonné jusqu'à " + getLimitReservation(doc)); // timertask
-	        		} else if (abo.estBanni()) {
-	        			socketOut.println("Echec lors de la réservation : Vous êtes banni de la tribu jusqu'au " + abo.getDateFinBannissement());
-	        		} else {
-	        			doc.reservationPour(abo);
-	        			
-	        			if (doc.reserveur() == abo) {
-	        	        	socketOut.println("Réservation effectuée avec succès : " + doc + " réservé pour l'abonné " + abo);
-	        	        	System.out.println("Réservation effectuée avec succès");
-	        	        } else {
-	        	        	if (doc.getClass().getSimpleName().equals("DVD") && !abo.estAdulte()) {
-	        	        		socketOut.println("Vous n'avez pas l'âge necessaire pour réserver ce type de document réservé aux adultes (-16)! ");
-	        	        		System.err.println("[AGE NON REQUIS] Echec lors de la réservation du document : " + doc + " pour " + abo);
-	        	        	} else {
-	        	        		socketOut.println("Echec lors de la réservation effectuée: " + doc + " non réservé pour l'abonné " + abo);
-	        	        		System.err.println("[RAISON INCONNUE] Echec lors de la réservation du document : " + doc + " pour " + abo);
-	        	        	}
-	        	        }
-	        		}
-	        	}
-	        }
+		
 	        
 	        line = socketIn.readLine();
     		if(line.equals("continue")) {

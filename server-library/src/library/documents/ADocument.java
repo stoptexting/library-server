@@ -1,6 +1,7 @@
 package library.documents;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -18,7 +19,11 @@ class LibererTimer extends TimerTask {
 	
 	@Override
 	public void run() {
-		this.doc.retour();
+		synchronized (doc) {
+			doc.notifyAll();
+			((ADocument) doc).taskLiberer = null;
+			this.doc.retour();
+		}
 	}
 	
 	public String toString() {
@@ -35,7 +40,7 @@ public abstract class ADocument implements Document {
 	private Abonne reserveur;
 	
 	private static Timer timer;
-	private LibererTimer taskLiberer;
+	protected LibererTimer taskLiberer;
 	
 	static {
 		timer = new Timer();
@@ -65,8 +70,13 @@ public abstract class ADocument implements Document {
 	public void reservationPour(Abonne ab) {
 		assert ab != null && this.reserveur == null && this.emprunteur == null && !ab.estBanni();
 		synchronized(this) {
-			this.taskLiberer = new LibererTimer(this, new Date(System.currentTimeMillis() + 60*60*1000*2));
-			timer.schedule(taskLiberer, 60 * 60 * 1000 * 2);
+			Calendar cal = Calendar.getInstance();
+			//cal.add(Calendar.HOUR_OF_DAY, 2);
+			cal.add(Calendar.SECOND, 20);
+			Date dateLimite = new Date(cal.getTimeInMillis());;
+			
+			this.taskLiberer = new LibererTimer(this, dateLimite);
+			timer.schedule(taskLiberer, dateLimite);
 			this.reserveur = ab;
 		}
 	}
@@ -98,6 +108,12 @@ public abstract class ADocument implements Document {
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy 'à' HH:mm:ss");
         String formattedDate = formatter.format(this.taskLiberer.limit);
 		return formattedDate;
+	}
+	
+	public boolean limitBientotAtteinte() {
+		if (this.taskLiberer != null)
+			return this.taskLiberer.limit.getTime() - System.currentTimeMillis() <= 30 * 1000; // -= 30 secondes
+		return false;
 	}
 
 }

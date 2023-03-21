@@ -1,6 +1,7 @@
 package app;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -8,6 +9,12 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Base64;
 import java.util.Scanner;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class AppClient {
 	private static final Scanner sc = new Scanner(System.in);
@@ -127,10 +134,23 @@ public class AppClient {
     	
     	// debut reservation
     	if ((documentConfirme && abonneConfirme) && (abonneID != 999 && docID != 999)) {
-    		// on effectue la réservation
-			socketOut.println("reserver:" + abonneID + ":" + docID);
-        	response = socketIn.readLine();
-        	System.out.println("[client] " + response);
+			// on effectue la réservation
+			
+
+			while (true) {
+				socketOut.println("reserver:" + abonneID + ":" + docID);
+				response = socketIn.readLine();
+				if (response.equals("OK") || response.equals("KO")) {
+					response = socketIn.readLine();
+					System.out.println("[client] " + response);
+					break;
+				} else if (response.equals("patientez")) {
+					response = socketIn.readLine();
+					System.out.println("[client] " + response);
+					jouerMusiqueCeleste("musique_celeste.wav");
+				}
+			}
+			
     	}
     	// fin finie
     	
@@ -149,5 +169,40 @@ public class AppClient {
 	private static String decoded(String fromServer) {
 	      byte[] decodedBytes = Base64.getDecoder().decode(fromServer);
 	      return new String(decodedBytes);
+	}
+	
+	public static void jouerMusiqueCeleste(String fichier) {
+		try {
+	         // Open an audio input stream.
+	         File soundFile = new File(fichier);
+	         AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
+	         
+	         // Get a sound clip resource.
+	         Clip clip = AudioSystem.getClip();
+	         
+	         // Open audio clip and load samples from the audio input stream.
+	         clip.open(audioIn);
+	         
+	         // Play the sound clip.
+	         clip.start();
+	         
+	         // Wait for the clip to finish playing.
+	         while (!clip.isRunning())
+	            Thread.sleep(10);
+	         while (clip.isRunning())
+	            Thread.sleep(10);
+	         
+	         // Close the resources.
+	         clip.close();
+	         audioIn.close();
+	      } catch (UnsupportedAudioFileException e) {
+	         e.printStackTrace();
+	      } catch (IOException e) {
+	         e.printStackTrace();
+	      } catch (LineUnavailableException e) {
+	         e.printStackTrace();
+	      } catch (InterruptedException e) {
+	         e.printStackTrace();
+	      }
 	}
 }
